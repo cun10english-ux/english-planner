@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>October 2026 English Planner</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --accent: #2563eb;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #0f172a;
+            --border: #e2e8f0;
+            --week-divider: #94a3b8;
+            --success: #16a34a;
+            --warning: #d97706;
+            
+            /* Dynamic Bar Colors */
+            --bar-red: #ef4444;
+            --bar-blue: #2563eb;
+            --bar-gold: #eab308;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 12px;
+            max-width: 520px;
+            margin: 0 auto;
+            padding-bottom: 30px;
+        }
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+        header h1 {
+            font-size: 1.25rem;
+            margin-bottom: 4px;
+        }
+        header p {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+        .section-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 16px 0 8px 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+        .activity-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        .badge {
+            background: #eff6ff;
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+        .activity-desc {
+            font-size: 0.825rem;
+            color: #475569;
+        }
+        
+        /* Scrollable Container for Table and Chart */
+        .scroll-wrapper {
+            overflow-x: auto;
+            background: var(--card-bg);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            margin-bottom: 12px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .tracker-table {
+            width: 100%;
+            border-collapse: collapse;
+            white-space: nowrap;
+        }
+        .tracker-table th, .tracker-table td {
+            padding: 8px 6px;
+            text-align: center;
+            font-size: 0.75rem;
+            border-bottom: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+        }
+        .tracker-table th {
+            background-color: #f1f5f9;
+            color: #334155;
+            font-weight: 600;
+            min-width: 34px;
+        }
+        .tracker-table th.week-header {
+            background-color: #e2e8f0;
+            font-size: 0.7rem;
+            color: var(--primary);
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .tracker-table td:first-child, .tracker-table th:first-child {
+            position: sticky;
+            left: 0;
+            background: #f8fafc;
+            z-index: 2;
+            text-align: left;
+            padding-left: 8px;
+            font-weight: 600;
+            border-right: 2px solid var(--week-divider);
+        }
+
+        /* Weekend Line Separation for Table */
+        .friday-col {
+            border-right: 2.5px solid var(--week-divider) !important;
+        }
+
+        /* Monthly Histogram Chart Styles */
+        .chart-box {
+            padding: 16px 12px 8px 12px;
+            min-width: 820px;
+        }
+        .chart-container {
+            display: flex;
+            justify-content: flex-start;
+            align-items: flex-end;
+            height: 120px;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 4px;
+            gap: 4px;
+        }
+        .chart-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 32px;
+            height: 100%;
+            justify-content: flex-end;
+            border-radius: 4px;
+            padding: 2px 0;
+            transition: background-color 0.2s ease;
+            cursor: pointer;
+        }
+
+        .chart-col:hover {
+            background-color: #f1f5f9;
+        }
+
+        /* Highlight Selected Day Column */
+        .chart-col.selected-day-col {
+            background-color: #f1f5f9;
+            border: 1px dashed var(--accent);
+        }
+        
+        /* Weekend Gap Separation for Chart */
+        .chart-col.friday-gap {
+            margin-right: 14px;
+            position: relative;
+        }
+        .chart-col.friday-gap::after {
+            content: "";
+            position: absolute;
+            right: -8px;
+            top: 10px;
+            bottom: -4px;
+            width: 2px;
+            background-color: var(--week-divider);
+            opacity: 0.5;
+        }
+
+        .bar-label {
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+        .bar-wrapper {
+            width: 18px;
+            height: 90px;
+            background-color: #e2e8f0;
+            border-radius: 4px;
+            display: flex;
+            align-items: flex-end;
+            overflow: hidden;
+        }
+        .bar-fill {
+            width: 100%;
+            height: 0%;
+            background-color: var(--bar-red);
+            transition: height 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* Dynamic Color Classes */
+        .bar-fill.status-red {
+            background-color: var(--bar-red);
+        }
+        .bar-fill.status-blue {
+            background-color: var(--bar-blue);
+        }
+        .bar-fill.status-gold {
+            background-color: var(--bar-gold);
+            box-shadow: 0 0 6px rgba(234, 179, 8, 0.6);
+        }
+
+        .day-label {
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: #334155;
+            margin-top: 6px;
+        }
+
+        /* Select Day & Stats Styles */
+        .day-select-box {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+        select {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: white;
+            font-weight: 600;
+            color: var(--primary);
+            outline: none;
+            max-width: 100%;
+        }
+        .progress-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 8px;
+        }
+        .progress-bar-bg {
+            background: #e2e8f0;
+            border-radius: 8px;
+            height: 12px;
+            width: 100%;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+        .progress-bar-fill {
+            background: var(--accent);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease, background-color 0.3s ease;
+        }
+        .missed-list {
+            list-style: none;
+            margin-top: 8px;
+        }
+        .missed-item {
+            font-size: 0.825rem;
+            color: var(--warning);
+            font-weight: 600;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .missed-item::before {
+            content: "•";
+            font-size: 1.2rem;
+        }
+
+        /* Activity Stats Grid */
+        .activity-stats-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+        .act-stat-row {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .act-stat-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.825rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+        .act-stat-bar-bg {
+            background: #e2e8f0;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            width: 100%;
+        }
+        .act-stat-bar-fill {
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .clear-btn {
+            background: #f1f5f9;
+            border: 1px solid var(--border);
+            color: #475569;
+            font-size: 0.75rem;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 12px;
+        }
+        textarea {
+            width: 100%;
+            height: 80px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px;
+            font-size: 0.85rem;
+            resize: none;
+            outline: none;
+        }
+        textarea:focus {
+            border-color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>October 2026 English Planner</h1>
+        <p>22 Workdays • 2.5 Hours Daily (150 Mins)</p>
+    </header>
+
+    <div class="section-title">Daily Activities</div>
+    
+    <div class="card">
+        <div class="activity-header">
+            <span class="activity-title">1. Shadowing</span>
+            <span class="badge">15 MIN</span>
+        </div>
+        <div class="activity-desc">Focus on rhythm, stress, and mouth movement. Warm up speaking.</div>
+    </div>
+
+    <div class="card">
+        <div class="activity-header">
+            <span class="activity-title">2. Reading</span>
+            <span class="badge">30 MIN</span>
+        </div>
+        <div class="activity-desc">Read graded readers (Level 6) or books. Highlight unknown words.</div>
+    </div>
+
+    <div class="card">
+        <div class="activity-header">
+            <span class="activity-title">3. Vocab & Exercises</span>
+            <span class="badge">30 MIN</span>
+        </div>
+        <div class="activity-desc">Review unknown words. Add to Anki/Notion and practice grammar.</div>
+    </div>
+
+    <div class="card">
+        <div class="activity-header">
+            <span class="activity-title">4. Listening</span>
+            <span class="badge">30 MIN</span>
+        </div>
+        <div class="activity-desc">Listen to podcasts or watch shows. Focus on understanding natural phrasing.</div>
+    </div>
+
+    <div class="card">
+        <div class="activity-header">
+            <span class="activity-title">5. Writing</span>
+            <span class="badge">15 MIN</span>
+        </div>
+        <div class="activity-desc">Write a short journal entry or prepare conversation topics.</div>
+    </div>
+
+    <div class="card">
+        <div class="activity-header">
+            <span class="activity-title">6. Native Speaker Chat</span>
+            <span class="badge">30 MIN</span>
+        </div>
+        <div class="activity-desc">Active practice. Use new words/structures in live dialogue.</div>
+    </div>
+
+    <div class="section-title">October Tracker Grid</div>
+    <div class="scroll-wrapper">
+        <table class="tracker-table" id="tracker-table">
+            <!-- Table dynamically populated by JavaScript -->
+        </table>
+    </div>
+
+    <div class="section-title">October Overview (Histogram)</div>
+    <div class="scroll-wrapper">
+        <div class="chart-box">
+            <div class="chart-container" id="chart-container">
+                <!-- Histogram dynamically populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <div class="section-title">Daily Progress & Missed Tasks</div>
+    
+    <div class="day-select-box">
+        <label for="daySelect" style="font-size:0.85rem; font-weight:600;">Select Date:</label>
+        <select id="daySelect"></select>
+    </div>
+
+    <div class="progress-box">
+        <div style="display:flex; justify-content:space-between; font-size:0.85rem; font-weight:600;">
+            <span id="day-title-txt">Thursday, Oct 1st Progress</span>
+            <span id="percent-txt">0%</span>
+        </div>
+        <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="progress-fill"></div>
+        </div>
+        
+        <div style="font-size: 0.85rem; font-weight: 600; margin-top: 12px; color: #334155;">
+            Pending / Missed Tasks for this day:
+        </div>
+        <div id="missed-container" class="missed-list"></div>
+        
+        <button class="clear-btn" onclick="resetMonth()">Reset Entire Month</button>
+    </div>
+
+    <div class="section-title">Activity Completion Breakdown</div>
+    <div class="activity-stats-container" id="activity-stats-container">
+        <!-- Dynamically rendered activity percentages up to active day -->
+    </div>
+
+    <div class="section-title">Monthly Notes & Reflections</div>
+    <textarea id="notes" placeholder="Type monthly reflection, target vocabulary, or notes here..."></textarea>
+
+    <script>
+        const octoberWorkdays = [
+            { id: 0, label: "Thursday, Oct 1st", short: "1 Th", isFriday: false },
+            { id: 1, label: "Friday, Oct 2nd", short: "2 Fr", isFriday: true },
+            { id: 2, label: "Monday, Oct 5th", short: "5 Mo", isFriday: false },
+            { id: 3, label: "Tuesday, Oct 6th", short: "6 Tu", isFriday: false },
+            { id: 4, label: "Wednesday, Oct 7th", short: "7 We", isFriday: false },
+            { id: 5, label: "Thursday, Oct 8th", short: "8 Th", isFriday: false },
+            { id: 6, label: "Friday, Oct 9th", short: "9 Fr", isFriday: true },
+            { id: 7, label: "Monday, Oct 12th", short: "12 Mo", isFriday: false },
+            { id: 8, label: "Tuesday, Oct 13th", short: "13 Tu", isFriday: false },
+            { id: 9, label: "Wednesday, Oct 14th", short: "14 We", isFriday: false },
+            { id: 10, label: "Thursday, Oct 15th", short: "15 Th", isFriday: false },
+            { id: 11, label: "Friday, Oct 16th", short: "16 Fr", isFriday: true },
+            { id: 12, label: "Monday, Oct 19th", short: "19 Mo", isFriday: false },
+            { id: 13, label: "Tuesday, Oct 20th", short: "20 Tu", isFriday: false },
+            { id: 14, label: "Wednesday, Oct 21st", short: "21 We", isFriday: false },
+            { id: 15, label: "Thursday, Oct 22nd", short: "22 Th", isFriday: false },
+            { id: 16, label: "Friday, Oct 23rd", short: "23 Fr", isFriday: true },
+            { id: 17, label: "Monday, Oct 26th", short: "26 Mo", isFriday: false },
+            { id: 18, label: "Tuesday, Oct 27th", short: "27 Tu", isFriday: false },
+            { id: 19, label: "Wednesday, Oct 28th", short: "28 We", isFriday: false },
+            { id: 20, label: "Thursday, Oct 29th", short: "29 Th", isFriday: false },
+            { id: 21, label: "Friday, Oct 30th", short: "30 Fr", isFriday: true }
+        ];
+
+        const activities = ["Shadowing", "Reading", "Vocab & Exercises", "Listening", "Writing", "Speaking"];
+
+        function initDOM() {
+            // 1. Populate Dropdown Options
+            const daySelect = document.getElementById('daySelect');
+            daySelect.innerHTML = '';
+            octoberWorkdays.forEach(day => {
+                const opt = document.createElement('option');
+                opt.value = day.id;
+                opt.textContent = day.label;
+                daySelect.appendChild(opt);
+            });
+
+            // 2. Build Tracker Table
+            const trackerTable = document.getElementById('tracker-table');
+            let weekHeaderRow = '<thead><tr><th class="week-header">Week</th><th colspan="2" class="week-header friday-col">W1</th><th colspan="5" class="week-header friday-col">W2</th><th colspan="5" class="week-header friday-col">W3</th><th colspan="5" class="week-header friday-col">W4</th><th colspan="5" class="week-header friday-col">W5</th></tr>';
+            
+            let headerRow = '<tr><th>Activity</th>';
+            octoberWorkdays.forEach(day => {
+                const fridayClass = day.isFriday ? 'class="friday-col"' : '';
+                headerRow += `<th ${fridayClass}>${day.short}</th>`;
+            });
+            headerRow += '</tr></thead>';
+
+            let bodyRows = '<tbody>';
+            activities.forEach(act => {
+                bodyRows += `<tr><td>${act}</td>`;
+                octoberWorkdays.forEach(day => {
+                    const fridayClass = day.isFriday ? 'class="friday-col"' : '';
+                    bodyRows += `<td ${fridayClass}><input type="checkbox" class="track-chk" data-day="${day.id}" data-act="${act}"></td>`;
+                });
+                bodyRows += '</tr>';
+            });
+            bodyRows += '</tbody>';
+            trackerTable.innerHTML = weekHeaderRow + headerRow + bodyRows;
+
+            // 3. Build Histogram Chart Cols
+            const chartContainer = document.getElementById('chart-container');
+            chartContainer.innerHTML = '';
+            octoberWorkdays.forEach(day => {
+                const col = document.createElement('div');
+                col.className = 'chart-col' + (day.isFriday ? ' friday-gap' : '');
+                col.id = 'col-' + day.id;
+                col.setAttribute('onclick', `selectDay(${day.id})`);
+                col.innerHTML = `
+                    <span class="bar-label" id="perc-${day.id}">0%</span>
+                    <div class="bar-wrapper"><div class="bar-fill status-red" id="bar-${day.id}"></div></div>
+                    <span class="day-label">${day.short}</span>
+                `;
+                chartContainer.appendChild(col);
+            });
+        }
+
+        function selectDay(dayId) {
+            const daySelect = document.getElementById('daySelect');
+            daySelect.value = dayId;
+            updateAllData();
+        }
+
+        function updateAllData() {
+            const checkboxes = document.querySelectorAll('.track-chk');
+            const progressFill = document.getElementById('progress-fill');
+            const percentTxt = document.getElementById('percent-txt');
+            const dayTitleTxt = document.getElementById('day-title-txt');
+            const missedContainer = document.getElementById('missed-container');
+            const daySelect = document.getElementById('daySelect');
+
+            const dayCounts = new Array(octoberWorkdays.length).fill(0);
+            const selectedDay = parseInt(daySelect.value);
+            const missedList = [];
+
+            const activityDoneMap = {};
+            activities.forEach(act => activityDoneMap[act] = 0);
+
+            let maxActiveDayIndex = 0;
+
+            checkboxes.forEach((chk, index) => {
+                localStorage.setItem('oct_chk_' + index, chk.checked);
+
+                const dayIndex = parseInt(chk.getAttribute('data-day'));
+                const actName = chk.getAttribute('data-act');
+
+                if (chk.checked) {
+                    dayCounts[dayIndex]++;
+                    activityDoneMap[actName]++;
+                    if (dayIndex > maxActiveDayIndex) {
+                        maxActiveDayIndex = dayIndex;
+                    }
+                } else if (dayIndex === selectedDay) {
+                    missedList.push(actName);
+                }
+            });
+
+            // Days elapsed count based on active checks
+            const totalDaysElapsed = Math.max(1, maxActiveDayIndex + 1);
+
+            // Update Histogram Bars & Dynamic Color Thresholds
+            octoberWorkdays.forEach(day => {
+                const completedCount = dayCounts[day.id];
+                const dayPerc = Math.round((completedCount / activities.length) * 100);
+                const barFill = document.getElementById('bar-' + day.id);
+                const percTxtElem = document.getElementById('perc-' + day.id);
+                const colElem = document.getElementById('col-' + day.id);
+
+                if (barFill && percTxtElem) {
+                    barFill.style.height = dayPerc + '%';
+                    percTxtElem.textContent = dayPerc + '%';
+
+                    if (day.id === selectedDay) {
+                        colElem.classList.add('selected-day-col');
+                    } else {
+                        colElem.classList.remove('selected-day-col');
+                    }
+
+                    // Thresholds: 0-2 (red), 3-5 (blue), 6 (gold)
+                    barFill.classList.remove('status-red', 'status-blue', 'status-gold');
+                    if (completedCount <= 2) {
+                        barFill.classList.add('status-red');
+                    } else if (completedCount < activities.length) {
+                        barFill.classList.add('status-blue');
+                    } else {
+                        barFill.classList.add('status-gold');
+                    }
+                }
+            });
+
+            // Update Daily Progress Display
+            const selectedDayObj = octoberWorkdays.find(d => d.id === selectedDay);
+            const selectedDayCount = dayCounts[selectedDay];
+            const selectedDayPerc = Math.round((selectedDayCount / activities.length) * 100);
+            
+            dayTitleTxt.textContent = selectedDayObj.label + " Progress";
+            progressFill.style.width = selectedDayPerc + '%';
+            percentTxt.textContent = `${selectedDayPerc}% (${selectedDayCount}/${activities.length})`;
+
+            if (selectedDayCount <= 2) {
+                progressFill.style.backgroundColor = 'var(--bar-red)';
+            } else if (selectedDayCount < activities.length) {
+                progressFill.style.backgroundColor = 'var(--bar-blue)';
+            } else {
+                progressFill.style.backgroundColor = 'var(--bar-gold)';
+            }
+
+            // Render Missed Tasks
+            missedContainer.innerHTML = '';
+            if (selectedDayCount === activities.length) {
+                missedContainer.innerHTML = '<div style="font-size:0.825rem; color: var(--success); font-weight:600; margin-top:4px;">🎉 Perfect day! All 6 activities completed!</div>';
+            } else {
+                missedList.forEach(act => {
+                    const item = document.createElement('div');
+                    item.className = 'missed-item';
+                    item.textContent = act;
+                    missedContainer.appendChild(item);
+                });
+            }
+
+            // Render Activity Completion Breakdown Section
+            const actStatsContainer = document.getElementById('activity-stats-container');
+            actStatsContainer.innerHTML = '';
+
+            activities.forEach(act => {
+                const count = activityDoneMap[act];
+                const actPerc = Math.round((count / totalDaysElapsed) * 100);
+
+                const row = document.createElement('div');
+                row.className = 'act-stat-row';
+                row.innerHTML = `
+                    <div class="act-stat-header">
+                        <span>${act}</span>
+                        <span>${actPerc}% (${count}/${totalDaysElapsed} days)</span>
+                    </div>
+                    <div class="act-stat-bar-bg">
+                        <div class="act-stat-bar-fill" style="width: ${actPerc}%;"></div>
+                    </div>
+                `;
+                actStatsContainer.appendChild(row);
+            });
+        }
+
+        function loadSavedState() {
+            initDOM();
+
+            const checkboxes = document.querySelectorAll('.track-chk');
+            checkboxes.forEach((chk, index) => {
+                const savedVal = localStorage.getItem('oct_chk_' + index);
+                if (savedVal === 'true') {
+                    chk.checked = true;
+                }
+            });
+
+            const notesArea = document.getElementById('notes');
+            const savedNotes = localStorage.getItem('oct_planner_notes');
+            if (savedNotes) {
+                notesArea.value = savedNotes;
+            }
+
+            // Event Listeners
+            checkboxes.forEach(chk => chk.addEventListener('change', updateAllData));
+            document.getElementById('daySelect').addEventListener('change', updateAllData);
+            notesArea.addEventListener('input', () => {
+                localStorage.setItem('oct_planner_notes', notesArea.value);
+            });
+
+            updateAllData();
+        }
+
+        function resetMonth() {
+            if (confirm("Are you sure you want to reset all checkboxes for October?")) {
+                const checkboxes = document.querySelectorAll('.track-chk');
+                checkboxes.forEach((chk, index) => {
+                    chk.checked = false;
+                    localStorage.removeItem('oct_chk_' + index);
+                });
+                updateAllData();
+            }
+        }
+
+        loadSavedState();
+    </script>
+</body>
+</html>
